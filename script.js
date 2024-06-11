@@ -1,6 +1,10 @@
 class PipedriveIntegration {
     constructor() {
         window.addEventListener('message', this.handleMessage.bind(this));
+        this.createJobBtn = document.getElementById('createJobBtn');
+        this.createJobBtn.addEventListener('click', this.createJob.bind(this));
+        this.saveInfoBtn = document.getElementById('saveInfoBtn');
+        this.saveInfoBtn.addEventListener('click', this.saveInfo.bind(this));
     }
 
     handleMessage(event) {
@@ -29,6 +33,19 @@ class PipedriveIntegration {
             console.error('Error creating deal:', error);
             // Error handling
         });
+    }
+
+    createJob() {
+        // Implement the logic to create a job (deal) in Pipedrive
+        // Upon successful creation, update the button's text and style
+        this.createJobBtn.textContent = 'Request is sent';
+        this.createJobBtn.classList.add('sent');
+    }
+
+    saveInfo() {
+        // Trigger the saveData function in the iframe
+        const iframe = document.querySelector('iframe');
+        iframe.contentWindow.saveData();
     }
 }
 
