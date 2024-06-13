@@ -1,64 +1,80 @@
 const express = require('express');
-const fetch = require('node-fetch');
-const dotenv = require('dotenv');
-
-// Load environment variables from .env file
-dotenv.config();
-
+const axios = require('axios');
 const app = express();
 const port = 3000;
 
-// Middleware to serve static files
+const clientId = '65ea62639f4f8d25';
+const clientSecret = '850615bb570d4b9351603b7ef38b2db2db8b4c97';
+const redirectUri = 'https://5ab8-185-70-52-126.ngrok-free.app/'; 
+
+let accessToken = '704c1b73908f8e581ee6725190ad6b1bf0084f67'; 
+
+app.use(express.json());
 app.use(express.static('public'));
 
-// Middleware to parse JSON bodies
-app.use(express.json());
+// Route to handle OAuth installation
+app.get('/install', (req, res) => {
+    const authorizationUrl = `https://oauth.pipedrive.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
+    res.redirect(authorizationUrl);
+});
 
-// Define a route handler for the default home page
-app.get('/', (req, res) => {
+// Route to handle OAuth callback
+app.get('/callback', async (req, res) => {
+    const authorizationCode = req.query.code;
+
+    try {
+        const response = await axios.post('https://oauth.pipedrive.com/oauth/token', {
+            grant_type: 'authorization_code',
+            code: authorizationCode,
+            client_id: clientId,
+            client_secret: clientSecret,
+            redirect_uri: redirectUri
+        });
+
+        accessToken = response.data.access_token;
+        res.send('Authorization successful!');
+    } catch (error) {
+        console.error('Error getting access token:', error);
+        res.status(500).send('Authentication failed');
+    }
+});
+
+// Route to serve iframe content
+app.get('/iframe', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
-// Define a route handler for the /about page
-app.get('/about', (req, res) => {
-    res.send('About this site');
+// Route to handle form submissions
+app.post('/api/create-job', async (req, res) => {
+    const formData = req.body;
+
+    try {
+        // Perform API calls to create job in Pipedrive using formData
+        const response = await axios.post('https://api.pipedrive.com/v1/deals', formData, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        res.json({ message: 'Job created successfully', data: response.data });
+    } catch (error) {
+        console.error('Error creating job:', error);
+        res.status(500).send('Error creating job');
+    }
 });
 
-// Define a route handler for a POST request
-app.post('/data', (req, res) => {
-    const { clientData, jobData, serviceLocationData, scheduledData } = req.body;
+app.post('/api/save-info', async (req, res) => {
+    const formData = req.body;
 
-    // Create an object with data to be sent to Pipedrive
-    const pipedriveData = {
-        title: `${clientData.firstName} ${clientData.lastName}`, // Deal title
-        // Populate other data fields using clientData, jobData, serviceLocationData, and scheduledData
-    };
-
-    // Use the API token from the environment variables
-    const apiToken = process.env.PIPEDRIVE_API_TOKEN;
-
-    // Send a request to the Pipedrive API
-    fetch(`https://api.pipedrive.com/v1/deals?api_token=${apiToken}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(pipedriveData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Deal created:', data);
-        res.send(`Deal created: ${JSON.stringify(data)}`);
-        // Additional actions after successful deal creation
-    })
-    .catch(error => {
-        console.error('Error creating deal:', error);
-        res.status(500).send('Error creating deal');
-        // Error handling
-    });
+    try {
+        // Perform API calls to save info in Pipedrive using formData
+        const response = await axios.put('https://api.pipedrive.com/v1/deals/1', formData, { // Replace with actual deal ID
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        res.json({ message: 'Info saved successfully', data: response.data });
+    } catch (error) {
+        console.error('Error saving info:', error);
+        res.status(500).send('Error saving info');
+    }
 });
 
-// Start the server
 app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+    console.log(`App listening at http://localhost:${port}`);
 });

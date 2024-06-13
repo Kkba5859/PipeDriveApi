@@ -1,54 +1,55 @@
-class PipedriveIntegration {
-    constructor() {
-        window.addEventListener('message', this.handleMessage.bind(this));
-        this.createJobBtn = document.getElementById('createJobBtn');
-        this.createJobBtn.addEventListener('click', this.createJob.bind(this));
-        this.saveInfoBtn = document.getElementById('saveInfoBtn');
-        this.saveInfoBtn.addEventListener('click', this.saveInfo.bind(this));
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    const createJobButton = document.getElementById('create-job');
+    const saveInfoButton = document.getElementById('save-info');
+    
+    createJobButton.addEventListener('click', function() {
+        submitForm('createJob');
+    });
 
-    handleMessage(event) {
-        const { clientData, jobData, serviceLocationData, scheduledData } = event.data;
+    saveInfoButton.addEventListener('click', function() {
+        submitForm('saveInfo');
+    });
 
-        // Create an object with data to be sent to your backend
-        const pipedriveData = {
-            clientData,
-            jobData,
-            serviceLocationData,
-            scheduledData
+    async function submitForm(actionType) {
+        const formData = {
+            firstName: document.getElementById('first-name').value,
+            lastName: document.getElementById('last-name').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            jobType: document.getElementById('job-type').value,
+            jobSource: document.getElementById('job-source').value,
+            jobDescription: document.getElementById('job-description').value,
+            address: document.getElementById('address').value,
+            city: document.getElementById('city').value,
+            state: document.getElementById('state').value,
+            zipCode: document.getElementById('zip-code').value,
+            area: document.getElementById('area').value,
+            startDate: document.getElementById('start-date').value,
+            startTime: document.getElementById('start-time').value,
+            endTime: document.getElementById('end-time').value,
+            testSelect: document.getElementById('test-select').value
         };
 
-        // Send a request to your backend API
-        fetch('/data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(pipedriveData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Deal created:', data);
-            // Additional actions after successful deal creation
-        })
-        .catch(error => {
-            console.error('Error creating deal:', error);
-            // Error handling
-        });
-    }
+        const endpoint = actionType === 'createJob' ? '/api/create-job' : '/api/save-info';
 
-    createJob() {
-        // Implement the logic to create a job (deal) in Pipedrive
-        // Upon successful creation, update the button's text and style
-        this.createJobBtn.textContent = 'Request is sent';
-        this.createJobBtn.classList.add('sent');
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                alert(`Success: ${result.message}`);
+            } else {
+                alert('Error: Unable to process the request');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error: Unable to process the request');
+        }
     }
-
-    saveInfo() {
-        // Trigger the saveData function in the iframe
-        const iframe = document.querySelector('iframe');
-        iframe.contentWindow.saveData();
-    }
-}
-
-const pipedriveIntegration = new PipedriveIntegration();
+});

@@ -3,36 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Management</title>
-    <style>
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        iframe {
-            width: 100%;
-            height: 600px;
-            border: 1px solid #ccc;
-        }
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-        }
-        .sent {
-            background-color: #4CAF50;
-            color: white;
-        }
-    </style>
+    <title>Pipedrive Iframe App</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Job Management</h1>
-        <iframe src="form.html"></iframe>
-        <button id="createJobBtn">Create Job</button>
-        <button id="saveInfoBtn">Save Info</button>
+        <div class="left-section">
+            <div class="form-section">
+                <h2>Client details</h2>
+                <input type="text" id="first-name" name="first-name" placeholder="First name">
+                <input type="text" id="last-name" name="last-name" placeholder="Last name">
+                <input type="text" id="phone" name="phone" placeholder="Phone">
+                <input type="email" id="email" name="email" placeholder="Email (optional)">
+            </div>
+            <div class="form-section">
+                <h2>Service location</h2>
+                <input type="text" id="address" name="address" placeholder="Address">
+                <input type="text" id="city" name="city" placeholder="City">
+                <input type="text" id="state" name="state" placeholder="State">
+                <input type="text" id="zip-code" name="zip-code" placeholder="Zip code">
+                <select id="area" name="area">
+                    <option value="">Area</option>
+                    <!-- Add options here -->
+                </select>
+            </div>
+        </div>
+        <div class="right-section">
+            <div class="form-section">
+                <h2>Job details</h2>
+                <select id="job-type" name="job-type">
+                    <option value="">Job type</option>
+                    <!-- Add options here -->
+                </select>
+                <select id="job-source" name="job-source">
+                    <option value="">Job source</option>
+                    <!-- Add options here -->
+                </select>
+                <textarea id="job-description" name="job-description" placeholder="Job description (optional)"></textarea>
+            </div>
+            <div class="form-section">
+                <h2>Scheduled</h2>
+                <input type="date" id="start-date" name="start-date" placeholder="Start date">
+                <input type="time" id="start-time" name="start-time" placeholder="Start time">
+                <input type="time" id="end-time" name="end-time" placeholder="End time">
+                <select id="test-select" name="test-select">
+                    <option value="">Test select</option>
+                    <!-- Add options here -->
+                </select>
+            </div>
+            <div class="form-buttons">
+                <button type="button" id="create-job">Create a Job</button>
+                <button type="button" id="save-info">Save Info</button>
+            </div>
+        </div>
     </div>
-    <script type="module" src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
